@@ -24,8 +24,7 @@ console.log("storedAddress",storedAddress.payload.auth.address);
   };
 
   const handleSaveAddressLater = () => {
-    dispatch(setAddress(addressDetails)); // Dispatch the action with address details
-
+    dispatch(setAddress(addressDetails)); 
     setAddressDetails({
       area: '',
       pinCode: '',
@@ -36,7 +35,7 @@ console.log("storedAddress",storedAddress.payload.auth.address);
   };
 
   const handleSaveAddress = () => {
-    dispatch(setAddress(addressDetails)); // Dispatch the action with address details
+    dispatch(setAddress(addressDetails)); 
 
     setAddressDetails({
       area: '',

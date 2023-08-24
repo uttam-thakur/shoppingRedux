@@ -1,19 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from "../store/store"; // Make sure to import RootState from your store file
 import { useNavigate } from 'react-router-dom';
 import { setAddress } from '../store/authSlice';
+import TemporaryDrawer from "./Menu"
 const Navbar: React.FC = () => {
     const items = useSelector((state: RootState) => state.cart);
     const triggerCount = useSelector((state: RootState) => state.trigger.triggerCount); // Get the triggerCount from Redux store
-    const { username,address } = useSelector((state: RootState) => state.auth);
+    const { username, address } = useSelector((state: RootState) => state.auth);
     const addressDetails = useSelector((setAddress));
 
-console.log("setAddress",addressDetails.payload.auth.address);
+    console.log("setAddress", addressDetails.payload.auth.address);
 
     const navigate = useNavigate();
-
 
     const logoutHandler = () => {
         localStorage.clear()
@@ -22,6 +22,14 @@ console.log("setAddress",addressDetails.payload.auth.address);
     // setTimeout(() => {
     //     logoutHandler()
     // }, 1000 * 60 * 5)
+
+    const [drawerState, setDrawerState] = useState({
+        left: false,
+    });
+
+    const toggleDrawer = (anchor: string, open: boolean) => () => {
+        setDrawerState({ ...drawerState, [anchor]: open });
+    };
     return (
         <div
             style={{
@@ -30,8 +38,15 @@ console.log("setAddress",addressDetails.payload.auth.address);
                 justifyContent: 'space-between',
             }}
         >
-            <span style={{ height:"25px",width:"25px",background:"red",borderRadius:"8px",textAlign:"center",color:"white",fontSize:"22px",}}>{username.charAt(0).toUpperCase()}</span>
+            <span style={{ height: "25px", width: "25px", background: "red", borderRadius: "8px", textAlign: "center", color: "white", fontSize: "22px", cursor: "pointer" }}
+                onClick={toggleDrawer('left', true)} // Open the drawer on click
+
+            >
+                {username.charAt(0).toUpperCase()}</span>
+
+
             <span className="logo">Amazon Store </span>
+            <TemporaryDrawer />
             <div style={{ display: "flex" }}>
                 <button onClick={logoutHandler}>Logout</button>
                 <Link className="navLink" to="/home">
