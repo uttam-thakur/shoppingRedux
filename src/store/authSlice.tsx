@@ -43,13 +43,17 @@
 
 // authSlice.js
 import { createSlice } from '@reduxjs/toolkit';
-
+type UserCredential = {
+    accessToken: string;
+    // ... other properties
+  };
 const authSlice = createSlice({
     name: 'auth',
     initialState: {
         username: '',
         password: '',
         address: {},
+        userCredential: null as UserCredential | null, // Use the type here
     },
     reducers: {
         setUsername: (state, action) => {
@@ -61,6 +65,12 @@ const authSlice = createSlice({
         setAddress: (state, action) => {
             state.address = action.payload;
           },
+        setUserCredential: (state, action) => {
+            state.userCredential = action.payload;
+          },
+        clearUserCredential: (state) => {
+            state.userCredential = null;
+          },
     },
 });
 
@@ -71,5 +81,5 @@ const authSlice = createSlice({
 //   (auth) => auth.address
 // );
 
-export const { setUsername, setPassword,setAddress } = authSlice.actions;
+export const { setUsername, setPassword,setAddress,setUserCredential,clearUserCredential } = authSlice.actions;
 export default authSlice.reducer;

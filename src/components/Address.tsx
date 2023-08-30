@@ -1,104 +1,157 @@
-import React, { useState,useEffect } from 'react';
-import { useDispatch,useSelector } from 'react-redux';
+
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
 import Navbar from './Navbar';
-import { setAddress } from '../store/authSlice'; // Update the import path
+import { setAddress } from '../store/authSlice';
+import { TextField, Button, Box, Paper, Typography } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import { useNavigate } from 'react-router';
+
+const useStyles = makeStyles((theme:any) => ({
+  paper: {
+    marginTop: theme.spacing(8),
+    padding: theme.spacing(2),
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  form: {
+    width: '100%',
+    marginTop: theme.spacing(3),
+  },
+  submitButton: {
+    margin: theme.spacing(3, 0, 2),
+  },
+}));
+
+const validationSchema = yup.object().shape({
+  area: yup.string().required('Area is required'),
+  // pinCode: yup.string().required('Pin code is required'),
+  pinCode: yup
+  .string()
+  .required('Pin code is required')
+  .matches(/^\d+$/, 'Pin code must be a valid integer'),
+  locality: yup.string().required('Locality is required'),
+  // phoneNo: yup.string().required('Phone number is required'),
+  phoneNo: yup
+  .string()
+  .required('Phone number is required')
+  .matches(/^\d{10}$/, 'Phone number must be a 10-digit number'),
+  landmark: yup.string().required('Landmark is required'),
+});
+
 const Address: React.FC = () => {
+  const classes = useStyles();
   const dispatch = useDispatch();
   const storedAddress = useSelector(setAddress);
-console.log("storedAddress",storedAddress.payload.auth.address);
-
-  const [addressDetails, setAddressDetails] = useState({
-    area: '',
-    pinCode: '',
-    locality: '',
-    phoneNo: '',
-    landmark: '',
+const navigate = useNavigate()
+  const { control, handleSubmit, formState: { errors },trigger } = useForm({
+    defaultValues: {
+      area: '',
+      pinCode: '',
+      locality: '',
+      phoneNo: '',
+      landmark: '',
+    },
+    resolver: yupResolver(validationSchema),
   });
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setAddressDetails((prevDetails) => ({
-      ...prevDetails,
-      [name]: value,
-    }));
+  const onSubmit = async(data:any) => {
+    const valid = await trigger(); // Trigger validation for all fields
+    if (valid) {
+      dispatch(setAddress(data));
+      navigate('/stripe');
+    }
+    
   };
+// console.log("setAddress",storedAddress)
 
-  const handleSaveAddressLater = () => {
-    dispatch(setAddress(addressDetails)); 
-    setAddressDetails({
-      area: '',
-      pinCode: '',
-      locality: '',
-      phoneNo: '',
-      landmark: '',
-    });
-  };
-
-  const handleSaveAddress = () => {
-    dispatch(setAddress(addressDetails)); 
-
-    setAddressDetails({
-      area: '',
-      pinCode: '',
-      locality: '',
-      phoneNo: '',
-      landmark: '',
-    });
-  };
-
+  const continueHandle = async() =>{
+    const valid = await trigger(); // Trigger validation for all fields
+    if (valid) {
+      console.log('Submitted Data:', storedAddress); // Log the submitted data
+      navigate('/stripe');
+    }  }
   return (
     <>
       <Navbar />
-      <div>
-        <p>Permanent Address</p>
-        <input
-          type='text'
-          name='area'
-          placeholder='Area name'
-          value={storedAddress.payload.auth.address.area?storedAddress.payload.auth.address.area:addressDetails.area}
-          onChange={handleInputChange}
+      <Box display="flex" justifyContent="center">
+        <Paper className={classes.paper} elevation={3}>
+          <Typography component="h1" variant="h5">
+            Add New Address
+          </Typography>
+          <form className={classes.form} onSubmit={handleSubmit(onSubmit)}>
+            <Controller
+              name="area"
+              control={control}
+              render={({ field }) => (
+                <TextField {...field} label="Area name" variant="outlined" fullWidth margin="normal" helperText={errors.area?.message} error={!!errors.area}  />
+              )}
+            />
+
+<Controller
+          name="pinCode"
+          control={control}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              label="PinCode"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              helperText={errors.pinCode?.message}
+              error={!!errors.pinCode}
+            />
+          )}
         />
-        <br />
-        <p>Pin Code </p>
-        <input
-          type='text'
-          name='pinCode'
-          placeholder='PinCode'
-          value={storedAddress.payload.auth.address?storedAddress.payload.auth.address.pinCode:addressDetails.pinCode}
-          onChange={handleInputChange}
+
+           <Controller
+          name="locality"
+          control={control}
+          render={({ field }) => (
+            <TextField {...field} label="Locality" variant="outlined" fullWidth margin="normal" helperText={errors.locality?.message} error={!!errors.locality} />
+            )}
+          
         />
-        <br />
-        <p>Locality</p>
-        <input
-          type='text'
-          name='locality'
-          placeholder='Locality'
-          value={storedAddress.payload.auth.address?storedAddress.payload.auth.address.locality:addressDetails.locality}
-          onChange={handleInputChange}
+        <br/>
+
+        <Controller
+          name="phoneNo"
+          control={control}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              label="Phone No"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              helperText={errors.phoneNo?.message}
+              error={!!errors.phoneNo}
+              inputProps={{ maxLength: 10 }} // Optional: Limit input to 10 characters
+            />
+            )}
+            />
+        <br/>
+
+           <Controller
+          name="landmark"
+          control={control}
+          render={({ field }) => (
+            <TextField {...field} label="Landmark" variant="outlined" fullWidth margin="normal" helperText={errors.landmark?.message} error={!!errors.landmark} />
+            )}
+          
         />
-        <br />
-        <p>Phone No</p>
-        <input
-          type='number'
-          name='phoneNo'
-          placeholder='Phone No'
-          value={storedAddress.payload.auth.address?storedAddress.payload.auth.address.phoneNo:addressDetails.phoneNo}
-          onChange={handleInputChange}
-        />
-        <br />
-        <p>Landmark</p>
-        <input
-          type='text'
-          name='landmark'
-          placeholder='Landmark'
-          value={storedAddress.payload.auth.address?storedAddress.payload.auth.address.landmark:addressDetails.landmark}
-          onChange={handleInputChange}
-        />
-        <br />
-        
-        <button onClick={handleSaveAddressLater}>Save this address for later </button> <br/>
-        {/* <button onClick={handleSaveAddress}>Save this address to delevery</button> */}
-      </div>
+        <br/>
+            <Button type="submit" fullWidth variant="contained" color="primary" className={classes.submitButton} >
+            {/* <Button type="submit" fullWidth variant="contained" color="primary" className={classes.submitButton} onClick={continueHandle}> */}
+               continue to Buy
+            </Button>
+          </form>
+        </Paper>
+      </Box>
     </>
   );
 };

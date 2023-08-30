@@ -1,0 +1,43 @@
+.Login {
+    width: 300px;
+    margin: 0 auto;
+    padding: 20px;
+    box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.2);
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.Login h1 {
+    margin-bottom: 20px;
+    font-size: 28px;
+    font-weight: 400;
+    text-align: center;
+}
+
+.Login .form-control {
+    margin-bottom: 10px;
+}
+
+.Login .form-control label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.Login .form-control input {
+    width: 100%;
+    padding: 6px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.Login .form-control button {
+    width: 100%;
+    padding: 10px 16px;
+    background-color: #f0c14b;
+    border: 1px solid;
+    border-color: #a88734 #9c7e31 #846a29;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 16px;
+}

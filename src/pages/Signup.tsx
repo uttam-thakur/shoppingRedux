@@ -1,16 +1,4 @@
-// background: `url('https://mosodigital.com/wp-content/uploads/2021/07/E-Commerce-Shopping-animated-graphic-green.gif')`,
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, Link } from "react-router-dom";
-import { setUsername, setPassword, setUserCredential } from "../store/authSlice";
-import { login } from "../Services/servicesApi";
-import { RootState } from "../store/store";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase";
-
-import { Snackbar, SnackbarContent } from "@material-ui/core";
-import { Alert } from "@mui/material";
-
 import {
   TextField,
   Button,
@@ -23,11 +11,14 @@ import {
   IconButton,
   InputAdornment,
 } from "@material-ui/core";
-import { Visibility, VisibilityOff } from "@material-ui/icons";
-
 import { makeStyles } from "@material-ui/core/styles";
 import { CircularProgress } from "@mui/material";
-
+import { Link,Navigate, useNavigate } from "react-router-dom";
+import {createUserWithEmailAndPassword} from "firebase/auth"
+import { auth,db } from "../firebase"
+import { Snackbar, SnackbarContent } from "@material-ui/core";
+import { Alert } from "@mui/material";
+import {collection, addDoc} from "firebase/firestore"
 const useStyles = makeStyles((theme) => ({
   passwordAdornment: {
     cursor: "pointer",
@@ -65,55 +56,61 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Login = () => {
+const Signup: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false); // Add loading state
   const [successMessage, setSuccessMessage] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-
+const navigate = useNavigate()
   const classes = useStyles();
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const { username, password } = useSelector((state: RootState) => state.auth);
-  const isLoginDisabled = !username || !password;
-  const [showPassword, setShowPassword] = useState(false);
+  const [payload, setPayload] = useState({
+    email: "",
+    username: "",
+    password: "",
+  });
 
-  const handleTogglePassword = () => {
-    setShowPassword(!showPassword);
-  };
-
-  const handleInputChange = (event: any) => {
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
-    if (name === "username") {
-      dispatch(setUsername(value));
-    } else if (name === "password") {
-      dispatch(setPassword(value));
-    }
+    setPayload((prevPayload) => ({
+      ...prevPayload,
+      [name]: value,
+    }));
   };
+  
 
-  async function handleSubmit(event: any) {
-    event.preventDefault();
+  const handleSubmit = async (event: any) => {
+  event.preventDefault();
+  setIsLoading(true);
 
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, username, password);
-      setIsLoading(true); // Set loading state to true
-      console.log(userCredential.user);
-      setSuccessMessage(true);
+  try {
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      payload.email,
+      payload.password
+    );
+    console.log(userCredential);
+    addDoc(collection(db,"users"),{
+      userEmail:payload.email, password:payload.password, uid:userCredential.user.uid
+    })
+    setSuccessMessage(true);
+    setTimeout(() => {
+      setSuccessMessage(false);
+      navigate("/"); 
+    }, 1500);
+  } catch (error) {
+    console.log("error", error);
+    setErrorMessage("Email Already use. please use another email");
+  } finally {
+    setIsLoading(false);
+      // setSuccessMessage(false);
 
-      if (userCredential) {
-        setSuccessMessage(false);
-        navigate("/home");
-        dispatch(setUserCredential(userCredential.user))
-      }
-    } catch (error) {
-      console.log(error);
-      setErrorMessage("Incorrect email or password"); // You can modify this message
+    setPayload({
+      email: "",
+      username: "",
+      password: "",
+    });
 
-    } finally {
-
-      setIsLoading(false);
-    }
   }
-
+};
 
   return (
     <div className={classes.container}>
@@ -123,7 +120,7 @@ const Login = () => {
         onClose={() => setSuccessMessage(false)}
       >
         <Alert onClose={() => setSuccessMessage(false)} severity="success">
-          Successfully logged in!
+          User Successfully created!
         </Alert>
       </Snackbar>
 
@@ -140,7 +137,7 @@ const Login = () => {
         <Card className={classes.card}>
           <CardContent>
             <Typography component="h1" variant="h5">
-              Login
+              Sing-Up
             </Typography>
             <form onSubmit={handleSubmit}>
               <TextField
@@ -148,14 +145,27 @@ const Login = () => {
                 margin="normal"
                 required
                 fullWidth
+                id="email"
+                label="email"
+                name="email"
+                autoComplete="email"
+                autoFocus
+                value={payload.email}
+                onChange={handleInputChange}
+              />
+              {/* <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
                 id="username"
-                label="Email"
+                label="Username"
                 name="username"
                 autoComplete="username"
                 autoFocus
-                value={username}
+                value={payload.username}
                 onChange={handleInputChange}
-              />
+              /> */}
               <TextField
                 variant="outlined"
                 margin="normal"
@@ -163,24 +173,10 @@ const Login = () => {
                 fullWidth
                 name="password"
                 label="Password"
-                type={showPassword ? "text" : "password"}
                 id="password"
                 autoComplete="current-password"
-                value={password}
+                value={payload.password}
                 onChange={handleInputChange}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => setShowPassword(!showPassword)}
-                        onMouseDown={(e) => e.preventDefault()}
-                        edge="end"
-                      >
-                        {showPassword ? <Visibility /> : <VisibilityOff />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
               />
 
               <CardActions className={classes.cardActions}>
@@ -188,34 +184,34 @@ const Login = () => {
                   type="submit"
                   variant="contained"
                   color="primary"
-                  disabled={isLoginDisabled || isLoading}
                   startIcon={
                     isLoading ? (
                       <CircularProgress size={20} color="inherit" />
                     ) : null
                   }
-                // className={isLoading ? classes.loadingButton : null}
+                  // className={isLoading ? classes.loadingButton : null}
                 >
-                  {isLoading ? "Logging in..." : "Login"}
+                  {isLoading ? "Creating Account..." : "Submit"}
                 </Button>
               </CardActions>
             </form>
           </CardContent>
           <CardContent>
-            <Link to="/signup">Or sign-up here</Link>
+            <Link to="/">Already sing-up? login here</Link>
           </CardContent>
         </Card>
       </Container>
       <Grid item xs={6} sm={6} md={6} lg={6}>
         <img
-          src="https://mosodigital.com/wp-content/uploads/2021/07/E-Commerce-Shopping-animated-graphic-green.gif"
+          src="https://brandroofsolutions.com/wp-content/uploads/2020/12/cms-and-ecommerce.gif"
           alt="Background"
           className={classes.image}
         />
       </Grid>
-
     </div>
   );
 };
 
-export default Login;
+export default Signup;
+
+

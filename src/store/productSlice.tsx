@@ -1,5 +1,5 @@
+
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { ReactNode } from 'react';
 
 export const STATUSES = Object.freeze({
     IDLE: 'idle',
@@ -8,25 +8,33 @@ export const STATUSES = Object.freeze({
 });
 
 interface Product {
-    description: ReactNode;
     id: number;
     title: string;
     price: number;
+    description: string;
+    category: string;
     image: string;
+    rating: {
+        rate: number;
+        count: number;
+    };
 }
 
 interface ProductState {
     data: Product[];
     status: string;
+    searchQuery: string; // Add the searchQuery field
 }
 
 const initialState: ProductState = {
     data: [],
     status: STATUSES.IDLE,
+    searchQuery: '', // Initialize searchQuery as an empty string
 };
 
-export const fetchProducts = createAsyncThunk('products/fetch', async () => {
-    const res = await fetch('https://fakestoreapi.com/products');
+// Modify the fetchProducts action to accept API URL
+export const fetchProducts = createAsyncThunk('products/fetch', async (apiURL: string) => {
+    const res = await fetch(apiURL);
     const data = await res.json();
     return data;
 });
@@ -40,6 +48,9 @@ const productSlice = createSlice({
         },
         setStatus: (state, action: PayloadAction<string>) => {
             state.status = action.payload;
+        },
+        setSearchQuery: (state, action: PayloadAction<string>) => {
+            state.searchQuery = action.payload;
         },
     },
     extraReducers: (builder) => {
@@ -57,5 +68,5 @@ const productSlice = createSlice({
     },
 });
 
-export const { setProducts, setStatus } = productSlice.actions;
+export const { setProducts, setStatus, setSearchQuery } = productSlice.actions;
 export default productSlice.reducer;

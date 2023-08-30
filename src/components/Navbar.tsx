@@ -1,73 +1,281 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { RootState } from "../store/store"; // Make sure to import RootState from your store file
-import { useNavigate } from 'react-router-dom';
-import { setAddress } from '../store/authSlice';
-import TemporaryDrawer from "./Menu"
+import React, { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "../store/store";
+import { useNavigate, Link } from "react-router-dom";
+import { fetchProducts, setSearchQuery } from "../store/productSlice";
+import { clearUserCredential, setAddress,setUserCredential } from "../store/authSlice";
+
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import IconButton from "@mui/material/IconButton";
+import Badge from "@mui/material/Badge";
+import MenuIcon from "@mui/icons-material/Menu";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import Typography from "@mui/material/Typography";
+import Avatar from "@mui/material/Avatar";
+import Drawer from "@mui/material/Drawer";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import TextField from "@mui/material/TextField";
+import SearchIcon from "@mui/icons-material/Search";
+import InputAdornment from "@mui/material/InputAdornment";
+import { clearCart } from "../store/cartSlice";
+import { resetTrigger } from "../store/triggerSlice";
+
 const Navbar: React.FC = () => {
-    const items = useSelector((state: RootState) => state.cart);
-    const triggerCount = useSelector((state: RootState) => state.trigger.triggerCount); // Get the triggerCount from Redux store
-    const { username, address } = useSelector((state: RootState) => state.auth);
-    const addressDetails = useSelector((setAddress));
 
-    console.log("setAddress", addressDetails.payload.auth.address);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | ''>('');
 
-    const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const token = useSelector((state: RootState) => state.auth?.userCredential)
+console.log("token",token?token?.accessToken:"null");
 
-    const logoutHandler = () => {
-        localStorage.clear()
-        navigate('/');
-    }
-    // setTimeout(() => {
-    //     logoutHandler()
-    // }, 1000 * 60 * 5)
+  const items = useSelector((state: RootState) => state.cart);
+  const triggerCount = useSelector(
+    (state: RootState) => state.trigger.triggerCount
+  );
+  //   const { username } = useSelector((state: RootState) => state.auth);
+  const { username, address,userCredential } = useSelector((state: RootState) => state.auth);
 
-    const [drawerState, setDrawerState] = useState({
-        left: false,
-    });
+  const [drawerState, setDrawerState] = useState({
+    left: false,
+  });
+  const [avatarAnchor, setAvatarAnchor] = useState<HTMLElement | null>(null);
 
-    const toggleDrawer = (anchor: string, open: boolean) => () => {
-        setDrawerState({ ...drawerState, [anchor]: open });
-    };
-    return (
-        <div
-            style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-            }}
+  const toggleDrawer = (anchor: string, open: boolean) => () => {
+    setDrawerState({ ...drawerState, [anchor]: open });
+  };
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch(setSearchQuery(event.target.value)); // Dispatch setSearchQuery with the search query
+  };
+
+  const openAvatarMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAvatarAnchor(event.currentTarget);
+  };
+
+  const closeAvatarMenu = () => {
+    setAvatarAnchor(null);
+  };
+
+  const logoutHandler = () => {
+    dispatch(clearCart());
+    dispatch(resetTrigger());
+    // localStorage.clear();
+    dispatch(clearUserCredential())
+    navigate("/");
+  };
+  useEffect(() => {
+    // Fetch categories
+    fetch('https://fakestoreapi.com/products/categories')
+        .then(response => response.json())
+        .then(data => setCategories(data));
+
+    // Fetch products based on the selected category
+    const apiURL = selectedCategory
+        ? `https://fakestoreapi.com/products/category/${selectedCategory}`
+        : 'https://fakestoreapi.com/products';
+
+    dispatch(fetchProducts(apiURL));
+}, [dispatch, selectedCategory]);
+
+const electronicsHandler = () =>{
+
+  const apiURL = selectedCategory
+      ? `https://fakestoreapi.com/products/category/electronics`
+      : 'https://fakestoreapi.com/products/category/electronics';
+
+  dispatch(fetchProducts(apiURL));
+}
+const jeweleryHandler = () =>{
+  const apiURL = selectedCategory
+      ? `https://fakestoreapi.com/products/category/jewelery`
+      : `https://fakestoreapi.com/products/category/jewelery`;
+
+  dispatch(fetchProducts(apiURL));
+}
+const mensClothHandler = () =>{
+  const apiURL = selectedCategory
+      ? `https://fakestoreapi.com/products/category/men's%20clothing`
+      : `https://fakestoreapi.com/products/category/men's%20clothing`
+
+  dispatch(fetchProducts(apiURL));
+}
+const womensClothHandler = () =>{
+  const apiURL = selectedCategory
+      ? `https://fakestoreapi.com/products/category/women's%20clothing`
+      : `https://fakestoreapi.com/products/category/women's%20clothing`
+
+  dispatch(fetchProducts(apiURL));
+}
+
+const closeDrawer = () => {
+  setDrawerState({ ...drawerState, left: false });
+};
+  return (
+    <AppBar position="static" sx={{ backgroundColor: "#131921" }}>
+      <Toolbar>
+        <IconButton
+          edge="start"
+          color="inherit"
+          aria-label="menu"
+          onClick={toggleDrawer("left", true)}
         >
-            <span style={{ height: "25px", width: "25px", background: "red", borderRadius: "8px", textAlign: "center", color: "white", fontSize: "22px", cursor: "pointer" }}
-                onClick={toggleDrawer('left', true)} // Open the drawer on click
+          <MenuIcon />
+        </IconButton>
+        <Drawer
+          anchor="left"
+          open={drawerState.left}
+          onClose={toggleDrawer("left", false)}
+        >
+            <Typography variant="h6">Hi, {username}</Typography>
+          <List>
+            <Link
+              to="/about"
+              style={{ textDecoration: "none", color: "inherit" }}
+              onClick={closeDrawer} 
 
             >
-                {username.charAt(0).toUpperCase()}</span>
+              <ListItem button>
+                <ListItemText primary="About Us" />
+              </ListItem>
+            </Link>
+
+            <Link
+              to="/contact"
+              style={{ textDecoration: "none", color: "inherit" }}
+              onClick={closeDrawer} 
+
+            >
+              <ListItem button>
+                <ListItemText primary="Contact Us" />
+              </ListItem>
+            </Link>
+
+            <Link
+              to="/order_history"
+              style={{ textDecoration: "none", color: "inherit" }}
+              onClick={closeDrawer} 
 
 
-            <span className="logo">Amazon Store </span>
-            <TemporaryDrawer />
-            <div style={{ display: "flex" }}>
-                <button onClick={logoutHandler}>Logout</button>
-                <Link className="navLink" to="/home">
-                    Home
-                </Link>
-                <Link className="navLink" to="/cart">
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                        <span className="cartCount" style={{ color: "red", marginTop: "-25px", fontSize: "22px" }}>
-                            {triggerCount}
-                        </span>
-                        <img
-                            style={{ height: "30px", width: "30px", marginLeft: "5px" }}
-                            src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHwAAAB8CAMAAACcwCSMAAAAY1BMVEX///8AAACmpqb6+vqvr69ERETOzs6srKzExMTe3t7o6Ojb29s6Ojr09PTs7OxcXFx8fHycnJxvb28XFxeDg4PU1NSWlpYSEhK7u7tpaWkjIyNkZGRQUFB1dXULCwuJiYkwMDAdi0AUAAAESUlEQVRoge1b2ZaqMBAEQXBBERAFV/7/K6/KptBJVyCBhzv1MufMYVLTQCrd1Y1llciWdoNHcMg21nSI7C7y7WTkPe4XThNxrylyO3cmId+R5HY4DXtMs98nIXcONLs/Cbu1WTfwombfXXbTsH/DOdXs0fTkluXX7HOQW/VLkM5Bvn/MeN/r3XeYhbx658JZyBcleTAL+aokTxa64Hq4Wqe05o1CsQBFa2+A/JWoLCByxwi5bcfIzTdFjqUJgSn2I0AemiK3Vzz53Rg5oB0nfpWh4EPvp9PawKdnPr/IUJxZ8pU5cpvdbSb0tQZbjZnRV5DcmMS9wJ8vSss9lK5mua0EX2yx3SptDp4cF3dP8R1Z8uRXdK24vB6XxJgnf6JrVRUdLgzAuQZHokwOpDOuMfKMJ8+MkQMHumeMHCgAaadGA/kZcLr2Z0PkF8Dlcy6GyAskfzVFDtV/hXyNZRSFffLmt2LcEHK5vj7fl2Rd8lPzWzGuCPlRGnd5jftLXnmmAl+vAmQ4SPW19kv8b/Lar5WHDlkt0iUaf9BvyRuvWP7uuQi5dInWL/GrSLLWp5YfiIC6cvra/v+7nx8vbKV/iNlrW3liJjybuKQb6iNsGJUR3L6UkWVEXV/3kcviyNhTLpENIGPGWTLLULHzZ+ENc6Vu7EK9XQOcw5DAQflr584z7/kHOUYu6D+I2dnn/QbiyVhg/vr13FOoyAGNbCx/bWJH7rkNqiucHlTsaM7nYeRgKGUssJkANkrh/PXgeXBxxTsDJTZo/qqC8x4jZ/V1CArQ9t7xEqcOUF0VSnQFAMV5CRP+K9wsQ/RVFfBEhAHzF6oYPoD9ARxQ9viBfv9VoUkISxyKC6gwb2w0c5/BQ+UDwSTHJNzWDi3RIQRrFW7L0SnuWDPxC7r09RK76kM3lb7GqTcG282gqZPKH5h1fgDM8zWjsvDP00xJdVBLHJjuakZFXijIoj7UjlQ4w5RUm7ovlaRRE/JGKMLId3VAYboS9p5xKDxCAw1dsEJ/A2534FB4e/XHrjLTu2GdITXwzfvf4LXS4xlsHf3iHi61IB42XehowSDqP/zh/4PiXtG4tVbPOAzjE1j4OO4xD68HdO5SDr853AOg+79ru4K5WplG4Pd8YT86+D0MRw5NbzslK9Mr6U7tjKp6dr18Shp7PwkY821K3ltNttyeqOyHf5dDOtrijITqQOMuWBdkpf4UXU33A4d+JkC738IBBDrpFP6vDOimbiLavnTff+ik/oJcTdgvob1yrJHZh2AKVpQK0vmmigX4DcXIafKhkdPPXDhoRHvlQz8Do43QQLQabVcPVlhy8ka42ppsbCoXCzXInStWDUKMxfeJB/EOSW4jZZYPDpx66tIOWX8OdtR3f90XPpEXut3+zMgPkbyfMbGAK7J/dekwNpHct9s3OfGLpa3IFiOed0vv3ovHIzhmmFalUZjYye1JC+E/vMI7QMpKaPwAAAAASUVORK5CYII='
-                        />
-                    </div>
-                </Link>
+            >
+              <ListItem button>
+                <ListItemText primary="Order History" />
+              </ListItem>
+            </Link>
+<h3>Category</h3>
+            <Link
+              to="/home"
+              style={{ textDecoration: "none", color: "inherit" }}
+              onClick={closeDrawer} 
 
+            >
+              <ListItem button>
+                <ListItemText primary="Electronics" onClick={electronicsHandler}/>
+              </ListItem>
+            </Link>
+            <Link
+              to="/home"
+              style={{ textDecoration: "none", color: "inherit" }}
+              onClick={closeDrawer} 
 
-            </div>
-        </div>
-    );
+            >
+              <ListItem button>
+                <ListItemText primary="Jewelery" onClick={jeweleryHandler}/>
+              </ListItem>
+            </Link>
+            <Link
+              to="/home"
+              style={{ textDecoration: "none", color: "inherit" }}
+              onClick={closeDrawer} 
+
+            >
+              <ListItem button>
+                <ListItemText primary="Mens Cloth" onClick={mensClothHandler}/>
+              </ListItem>
+            </Link>
+            <Link
+              to="/home"
+              style={{ textDecoration: "none", color: "inherit" }}
+              onClick={closeDrawer} 
+
+            >
+              <ListItem button>
+                <ListItemText primary="Womens Cloth" onClick={womensClothHandler}/>
+              </ListItem>
+            </Link>
+
+          </List>
+        </Drawer>
+        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <Link to="/home" style={{ textDecoration: "none", color: "inherit" }}>
+            <span
+              style={{ fontWeight: "bold", fontSize: "24px", color: "white" }}
+            >
+              Amazon
+            </span>{" "}
+            Store
+          </Link>
+        </Typography>
+        <TextField
+          id="search-bar"
+          // label="Search"
+          placeholder="Search..."
+          variant="outlined"
+          onChange={handleSearch}
+          size="small"
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start" sx={{ color: "gray" }}>
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            backgroundColor: "white",
+            borderRadius: "4px",
+            width: "500px",
+            "&:hover": {
+              backgroundColor: "white",
+            },
+          }}
+        />
+        <div style={{ width: "15px" }}></div>
+
+        <Avatar
+          sx={{
+            bgcolor: "#f0c14b",
+            width: 32,
+            height: 32,
+            fontSize: "18px",
+            cursor: "pointer",
+          }}
+          onClick={openAvatarMenu}
+        >
+          {username.charAt(0).toUpperCase()}
+        </Avatar>
+        <IconButton color="inherit">
+          <Link to="/cart" style={{ textDecoration: "none", color: "inherit" }}>
+            <Badge badgeContent={triggerCount} color="error">
+              <ShoppingCartIcon />
+            </Badge>
+          </Link>
+        </IconButton>
+        <Menu
+          anchorEl={avatarAnchor}
+          open={Boolean(avatarAnchor)}
+          onClose={closeAvatarMenu}
+          onClick={closeAvatarMenu}
+        >
+          <MenuItem onClick={logoutHandler}>Logout</MenuItem>
+        </Menu>
+      </Toolbar>
+    </AppBar>
+  );
 };
 
 export default Navbar;

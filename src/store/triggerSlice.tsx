@@ -17,9 +17,12 @@ const triggerSlice = createSlice({
     decrementTriggerAll: (state, action: PayloadAction<number>) => {
       state.triggerCount -= action.payload;
     },
+    resetTrigger: (state) => {
+      state.triggerCount = 0; // Reset the trigger count to zero
+    },
   },
 });
 
-export const { incrementTrigger, decrementTrigger, decrementTriggerAll } = triggerSlice.actions;
+export const { incrementTrigger, decrementTrigger, decrementTriggerAll, resetTrigger } = triggerSlice.actions;
 
 export default triggerSlice.reducer;

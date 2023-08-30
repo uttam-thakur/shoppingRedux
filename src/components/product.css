@@ -1,0 +1,57 @@
+/* Add these styles to your CSS */
+.loaderContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 500px;
+    height: 100vh;
+    /* Adjust as needed */
+}
+
+/* styles.css */
+.payment-container {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card-element {
+    margin: 15px 0;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.submit-button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.success-message {
+    color: green;
+    margin-top: 10px;
+}
+
+.error-message {
+    color: red;
+    margin-top: 10px;
+}
+
+.product {
+    display: flex;
+    align-items: flex-end; /* Align items at the top */
+  }
+  
+  .description {
+    flex: 1; /* Take up remaining space */
+    margin-right: 20px; /* Add spacing between description and button */
+  }

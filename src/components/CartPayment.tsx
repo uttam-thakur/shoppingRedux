@@ -6,6 +6,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { RootState } from '../store/store'; // Make sure to import RootState from your store file
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { setAddress } from '../store/authSlice';
 import { Button, Typography, Grid, Paper, Box } from '@mui/material';
 
 // Define the type for your product
@@ -17,9 +18,12 @@ interface ProductType {
     quantity: number;
 }
 
-const Cart: React.FC = () => {
+const CartPayment: React.FC = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const storedAddress = useSelector(setAddress);
+console.log("storedAddress",storedAddress);
+    const addressDetails = storedAddress?.payload?.auth?.address
     const products = useSelector((state: RootState) => state.cart);
     const { username, password } = useSelector((state: RootState) => state.auth);
 
@@ -61,18 +65,14 @@ const Cart: React.FC = () => {
     }
 
     return (
-        <div>
-            <Navbar />
+        <div style={{padding:"20px"}}>
+            {/* <Navbar /> */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h3>Cart</h3>
-                <h3>Total Price - {totalPrice.toFixed(2)} RS</h3>
+                <h3>Total Price - ₹ {totalPrice.toFixed(2)}/-</h3>
             </div>
-            <div className="cartWrapper" style={{ padding: '2rem 0', display: 'flex', justifyContent: 'center' }}>
-                <Paper elevation={3} sx={{ width: '80%', padding: '1rem' }}>
-                    <Typography variant="h5" gutterBottom>
-                        Your Cart
-                    </Typography>
-                    <Grid container spacing={3}>
+            <div className="cartWrapper" style={{ minHeight: '300px' }}>
+            <Grid container spacing={3}>
     {products.map((product) => (
         <Grid item xs={12} key={product.id}>
             <Paper elevation={3} sx={{ padding: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -91,23 +91,21 @@ const Cart: React.FC = () => {
         </Grid>
     ))}
 </Grid>
-<br></br>
-
+            </div>
             {products.length == 0 ?
                 <button className="btn" onClick={handleBuyRedirect}>
                     Please add item to cart first
                 </button>
                 :
-                <button className="btn" onClick={handleBuy} >
-                    Buy
-                </button>
+             <button className="btn" onClick={handleAllRemove}>Remove All Cart Items</button>
             }
-                </Paper>
-            </div>
-            {/* <button className="btn" onClick={handleAllRemove}>Remove All</button> */}
-            <Footer />
+            <h3>Billing Address</h3>
+            <p>{addressDetails?.area},<span>{addressDetails?.landmark}</span></p>
+            <p>{addressDetails?.locality},<span>{addressDetails?.pinCode}</span></p>
+            <p>Ph :{addressDetails?.phoneNo}</p>
+            {/* <Footer /> */}
         </div>
     );
 };
 
-export default Cart;
+export default CartPayment;
