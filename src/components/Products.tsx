@@ -17,8 +17,6 @@ import {
 import Footer from './Footer';
 import "./product.css"
 import TextField from '@material-ui/core/TextField';
-import axios from 'axios';
-// Define the Product interface
 interface Product {
     id: number;
     title: string;
@@ -38,7 +36,7 @@ const Products: React.FC = () => {
     // Get the product data and status from the Redux store
     const { data: products, status } = useSelector((state: RootState) => state.product);
 
-    
+
     // State for categories, selected category, pagination, and description expansion
     const [categories, setCategories] = useState<string[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<string | ''>('');
@@ -99,25 +97,23 @@ const Products: React.FC = () => {
 
     return (
         <>
-            <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center',padding:"20px" }}>
-                <InputLabel style={{ marginRight: '0.5rem', fontWeight: 'bold' }}>
-                    Select Category:
-                </InputLabel>
-                <FormControl variant="outlined" size="small">
-    <Select
-        value={selectedCategory}
-        onChange={(e) => setSelectedCategory(e.target.value as string)}
-    >
-        <MenuItem value="" >
-            <em>All</em>
-        </MenuItem>
-        {categories.map(category => (
-            <MenuItem key={category} value={category}>
-                {category}
-            </MenuItem>
-        ))}
-    </Select>
-</FormControl>
+            <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', padding: "20px" }}>
+
+
+
+                <label className="label">Select Category:</label>
+                <select
+                    className="select"
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value as string)}
+                >
+                    <option value="">All</option>
+                    {categories.map((category) => (
+                        <option key={category} value={category}>
+                            {category}
+                        </option>
+                    ))}
+                </select>
 
 
             </div>
@@ -125,7 +121,8 @@ const Products: React.FC = () => {
                 {/* Conditional rendering based on data fetching status */}
                 {status === STATUSES.LOADING ? (
                     <div className="loaderContainer">
-                        <CircularProgress /> {/* Display normal loading spinner */}
+                        <p>...loading</p>
+                        {/* <CircularProgress /> Display normal loading spinner */}
                     </div>
                 ) : (
                     /* Render products once data is fetched */
@@ -139,30 +136,29 @@ const Products: React.FC = () => {
                             </Link>
                             <h5>₹ {product.price * 80} /-</h5>
                             {/* Render product description */}
-                           <div  className="product">
-                            <div className="description">
-                                <p>
-                                    {typeof product.description === 'string'
-                                        ? expandedDescriptionId === product.id
-                                            ? product.description
-                                            : `Description :- ${product.description.slice(0, 100)}...`
-                                        : 'No description available'}
-                                </p>
+                            <div className="product">
+                                <div className="description">
+                                    <p>
+                                        {typeof product.description === 'string'
+                                            ? expandedDescriptionId === product.id
+                                                ? product.description
+                                                : `Description :- ${product.description.slice(0, 100)}...`
+                                            : 'No description available'}
+                                    </p>
+
+                                </div>
 
                             </div>
-                            {/* Add to cart button */}
-                      
-                            </div>
                             {typeof product.description === 'string' && product.description.length > 100 && (
-                                    <button onClick={() => toggleDescription(product.id)} style={{border:"none"}}>
-                                        {expandedDescriptionId === product.id ? 'Read Less' : 'Read More'}
-                                    </button>
-                                )}
-                            <button onClick={() => handleAdd(product)} className="btn" style={{marginTop:"50px"}}>
+                                <button onClick={() => toggleDescription(product.id)} style={{ border: "none" }}>
+                                    {expandedDescriptionId === product.id ? 'Read Less' : 'Read More'}
+                                </button>
+                            )}
+                            <button onClick={() => handleAdd(product)} className="btn" style={{ marginTop: "50px" }}>
                                 Add to cart
                             </button>
                         </div>
-                       
+
                     ))
                 )}
 
@@ -172,32 +168,29 @@ const Products: React.FC = () => {
             <div style={{ marginLeft: "40%" }} className="pagination">
 
                 <div>
-                    <Button
+                    <button
                         onClick={() => setCurrentPage(currentPage - 1)}
                         disabled={currentPage === 1}
                         style={{ marginRight: '140px' }}
                     >
-                                            <p>{'<<<'}</p>
+                        <p>{'<<<'}</p>
 
-                    </Button>
-                    <Button
+                    </button>
+                    <button
                         onClick={() => setCurrentPage(currentPage + 1)}
                         disabled={indexOfLastItem >= filteredProducts.length}
                     >
-                    <p>{'>>>'}</p>
-                    </Button>
+                        <p>{'>>>'}</p>
+                    </button>
                 </div>
 
-<TextField
-    type="number"
-    label="Items Per Page"
-    variant="outlined"
-    size="small"
-    inputProps={{ min: 1 }}
-    value={itemsPerPage}
-    onChange={handleItemsPerPageChange}
-    style={{ marginLeft: '65px',width:"150px"}}
-/>
+                <input
+                    type="number"
+                    placeholder="Items Per Page"
+                    value={itemsPerPage}
+                    onChange={handleItemsPerPageChange}
+                    style={{ marginLeft: '65px', width: "150px" }}
+                />
             </div>
             <div style={{ position: 'sticky' }}>
                 <Footer />

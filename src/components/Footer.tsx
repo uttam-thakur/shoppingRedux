@@ -1,74 +1,59 @@
 import React from 'react';
-import Typography from '@mui/material/Typography';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import IconButton from '@mui/material/IconButton';
-import FacebookIcon from '@mui/icons-material/Facebook';
-import TwitterIcon from '@mui/icons-material/Twitter';
-import InstagramIcon from '@mui/icons-material/Instagram';
-import PinterestIcon from '@mui/icons-material/Pinterest';
 
-const Footer: React.FC = () => {
+const Footer = () => {
   return (
-    <Box sx={{ backgroundColor: '#232f3e', color: 'white', padding: '20px' }}>
-      <Grid container>
-        <Grid item xs={12} sm={6} md={3}>
-          <Typography variant="h6" gutterBottom>
-            About Us
-          </Typography>
-          <Typography variant="body2" color="inherit" paragraph>
+    <footer style={{ backgroundColor: '#232f3e', color: 'white', padding: '20px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>
+        <div>
+          <h6 style={{ marginBottom: '10px' }}>About Us</h6>
+          <p style={{ color: 'inherit', marginBottom: '10px' }}>
             Amazon Store is your destination for all things shopping. Discover a wide range of products
             from electronics to fashion and more.
-          </Typography>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Typography variant="h6" gutterBottom>
-            Customer Service
-          </Typography>
-          <Link href="#" color="inherit" underline="hover">
+          </p>
+        </div>
+        <div>
+          <h6 style={{ marginBottom: '10px' }}>Customer Service</h6>
+          <a href="#" style={{ color: 'inherit', textDecoration: 'none', marginBottom: '5px', display: 'block' }}>
             Contact Us
-          </Link>
-          <Link href="#" color="inherit" underline="hover">
+          </a>
+          <a href="#" style={{ color: 'inherit', textDecoration: 'none', marginBottom: '5px', display: 'block' }}>
             Returns & Exchanges
-          </Link>
-          <Link href="#" color="inherit" underline="hover">
+          </a>
+          <a href="#" style={{ color: 'inherit', textDecoration: 'none', marginBottom: '5px', display: 'block' }}>
             FAQs
-          </Link>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Typography variant="h6" gutterBottom>
-            Shop With Us
-          </Typography>
-          <Link href="#" color="inherit" underline="hover">
+          </a>
+        </div>
+        <div>
+          <h6 style={{ marginBottom: '10px' }}>Shop With Us</h6>
+          <a href="#" style={{ color: 'inherit', textDecoration: 'none', marginBottom: '5px', display: 'block' }}>
             Featured Brands
-          </Link>
-          <Link href="#" color="inherit" underline="hover">
+          </a>
+          <a href="#" style={{ color: 'inherit', textDecoration: 'none', marginBottom: '5px', display: 'block' }}>
             Deals & Promotions
-          </Link>
-          <Link href="#" color="inherit" underline="hover">
+          </a>
+          <a href="#" style={{ color: 'inherit', textDecoration: 'none', marginBottom: '5px', display: 'block' }}>
             Gift Cards
-          </Link>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Typography variant="h6" gutterBottom>
-            Follow Us
-          </Typography>
-          <IconButton color="inherit">
-            <FacebookIcon />
-          </IconButton>
-          <IconButton color="inherit">
-            <TwitterIcon />
-          </IconButton>
-          <IconButton color="inherit">
-            <InstagramIcon />
-          </IconButton>
-          <IconButton color="inherit">
-            <PinterestIcon />
-          </IconButton>
-        </Grid>
-      </Grid>
-    </Box>
+          </a>
+        </div>
+        <div>
+          <h6 style={{ marginBottom: '10px' }}>Follow Us</h6>
+          <div style={{ display: 'flex' }}>
+            <a href="#" style={{ color: 'inherit', marginRight: '10px' }}>
+              Facebook
+            </a>
+            <a href="#" style={{ color: 'inherit', marginRight: '10px' }}>
+              Twitter
+            </a>
+            <a href="#" style={{ color: 'inherit', marginRight: '10px' }}>
+              Instagram
+            </a>
+            <a href="#" style={{ color: 'inherit', marginRight: '10px' }}>
+              Pinterest
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
   );
 };
 
